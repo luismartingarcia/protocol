@@ -21,12 +21,16 @@
  TABLE OF CONTENTS
 
   0x01 Introduction.............................................................
-  0x02 Installing Protocol......................................................
-  0x03 Running Protocol.........................................................
-   |_ 0x03.1 Displaying Existing Protocols......................................
-   |_ 0x03.2 Displaying Custom Protocols........................................
-  0x04 Examples.................................................................
-  0x05 Support and Bug Reporting................................................
+  0x02 Downloading Protocol......................................................
+  0x03 Installing Protocol......................................................
+  0x04 Running Protocol.........................................................
+   |_ 0x04.1 Displaying Existing Protocols......................................
+   |_ 0x04.2 Displaying Custom Protocols........................................
+   |    |_ 0x04.2.1 Field Lists.................................................
+   |    |_ 0x04.2.2 Options.....................................................
+   |_ 0x04.3 Command-line Options...............................................
+  0x05 Examples.................................................................
+  0x06 Contact, Support and Bug Reporting.......................................
 
 
  0x01 - INTRODUCTION
@@ -60,7 +64,7 @@
    http://www.luismg.com/protocol
 
 
- 0x02 - INSTALLING PROTOCOL
+ 0x03 - INSTALLING PROTOCOL
 
   Protocol can be installed by running the included setup.py script as follows:
 
@@ -71,7 +75,7 @@
 
    sudo ./setup.py install
 
- 0x03 - RUNNING PROTOCOL
+ 0x04 - RUNNING PROTOCOL
 
   Once installed, Protocol can be run from the command line. The syntax is
   the following:
@@ -84,7 +88,7 @@
 
   The following subsections describe each approach.
 
-  0x03.1 Displaying Existing Protocols
+  0x04.1 Displaying Existing Protocols
 
    The first approach lets users print ASCII headers for existing network
    protocols. In particular, the following protocols are available.
@@ -136,7 +140,7 @@
       icmpv6-redirect
       icmpv6-rsol
 
-  0x03.1 Displaying Custom Protocols
+  0x04.1 Displaying Custom Protocols
 
    Apart from already existing protocols, Protocol can represent any arbitrary
    protocol headers. In order to do that, instead of specifying the name of
@@ -151,7 +155,7 @@
    any of the field names contains spaces, the protocol specification must be
    enclosed in double quotes.
 
-   0x03.1.1 Field Lists
+   0x04.2.1 Field Lists
 
     The most important part of a protocol specification are field lists. This
     is just a comma-separated list of name:length tuples, where name represents
@@ -204,7 +208,7 @@
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 
-   0x03.1.2 Options
+   0x04.2.2 Options
 
     Once the list of fields has been specified, users may optionally pass
     formatting options to control the way the ASCII header is generated.
@@ -250,13 +254,13 @@
                                    bits(32)
 
 
-  0x03.3 Command-line Options
+  0x04.3 Command-line Options
 
     Apart from per-protocol format specifiers, Protocol can also be configured
     using command-line parameter. The following list provides a description of
     each option available.
 
-    Usage: /usr/local/bin/protocol {<protocol> or <spec>} [OPTIONS]
+    Usage: protocol {<protocol> or <spec>} [OPTIONS]
     PARAMETERS:
      <protocol>          : Name of an existing protocol
      <spec>              : Field by field specification of non-existing protocol
@@ -273,7 +277,7 @@
      --sepchar   <char>  : Character that separates protocol fields
 
 
- 0x04 - EXAMPLES
+ 0x05 - EXAMPLES
 
    This section presents additional examples on how to run protocol.
 
@@ -422,7 +426,7 @@
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 
- 0x05 - SUPPORT AND BUG REPORTING
+ 0x06 - CONTACT, SUPPORT AND BUG REPORTING
 
    For any questions, bug reports, bug fixes, feature requests, code 
    contributions, etc, please contact me using the e-mail address displayed on
