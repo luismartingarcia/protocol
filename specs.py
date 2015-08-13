@@ -493,6 +493,21 @@ icmpv6_nadv="Type:8,Code:8,Checksum:16,R:1,S:1,O:1,Reserved:29,Target\
 icmpv6_redirect="Type:8,Code:8,Checksum:16,Reserved:32,Target Address:128,\
 Destination Address:128,Options:64"
 
+modbus_tcp="Transaction ID:16,Protocol ID:16,Length:16,Address:8,Function Code:8,Data:64"
+
+profinet_rt="Frame ID:16,User Data:80,Cycle Counter:16,Data Status:8,Transfer Status:8"
+
+dnp3="Start:16,Length:8,Control:8,Destination Address:16,Source Address:16,CRC:16,User Data 1:128,CRC 1:16,User Data 2:112,CRC 2:16"
+
+tsap="Type:8,Slot:5,Rack:3"
+
+cotp_cr="Length:8,PDU Type:8, Destination Reference:16, Source Reference:16,Class/Options:8,Param. Code:8,Param. Length:8,Param.:88"
+
+cotp_dt="Length:8,PDU Type:8,Num. & LDU:8"
+
+cotp_dr="Length:8,PDU Type:8, Destination Reference:16, Source Reference:16,Cause:8"
+
+s7="Protocol ID:8,ROSCTR:8,Reserved:16,Request ID:16,Parameter Length:16,Data Length:16,Error Code (only ROSCTR 3):16,Function Code:8,Item Count:8"
 
 #      0                   1
 #      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
@@ -730,6 +745,14 @@ protocols={"ethernet":ethernet,
            "icmpv6-nsol":icmpv6_nsol,
            "icmpv6-nadv":icmpv6_nadv,
            "icmpv6-redirect":icmpv6_redirect,
+           "modbus_tcp":modbus_tcp,
+           "profinet_rt":profinet_rt,
+           "tsap":tsap,
+           "dnp3":dnp3,
+           "s7":s7,
+           "cotp_cc":cotp_cr,
+           "cotp_dt":cotp_dt,
+           "cotp_dr":cotp_dr,
            "example":example,
            "test":test
            }
