@@ -65,7 +65,7 @@
 #     +                                            Payload                                            +
 #     |                                                                                               |
 #     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ethernet="Source Address:48,Destination Address:48,EtherType:16,Payload:128?bits=48"
+ethernet="Destination Address:48,Source Address:48,EtherType:16,Payload:128?bits=48"
 
 
 #     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,7 +79,7 @@ ethernet="Source Address:48,Destination Address:48,EtherType:16,Payload:128?bits
 #     +                                            Payload                                            +
 #     |                                                                                               |
 #     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-dot1q="Source Address:48,Destination Address:48,TPID (0x8100):16,PCP:3,D:1,\
+dot1q="Destination Address:48,Source Address:48,TPID (0x8100):16,PCP:3,D:1,\
 VLAN ID:12,EtherType:16,Payload:96?bits=48"
 
 
