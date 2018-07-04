@@ -288,6 +288,13 @@
 
     Multiple invocations of -f are allowed.
 
+    Additionally, if a line contains a ';' character, the word to the left is
+    treated as a protocol name and text to the right is the corresponding
+    specification string. This allows users to build up a custom library of
+    protocol specifications, extending the list of built-in existing names.
+
+    Both forms may be intermixed in a single file.
+
 
  0x05 - EXAMPLES
 
@@ -481,6 +488,16 @@
     |                            uint32_t                           |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+    bash-3.2$ cat mylib.txt
+    float;sign:1,exponent:8,significand:23
+    double;sign:1,exponent:11,significand:52?bits=64
+
+    $ protocol -f mylib.txt double
+     0                   1                   2                   3                   4                   5                   6
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |s|       exponent      |                                              significand                                              |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
  0x06 - CONTACT, SUPPORT AND BUG REPORTING
 
