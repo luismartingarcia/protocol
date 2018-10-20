@@ -188,6 +188,7 @@ class Protocol():
         character in the middle.
         """
         lines=["", ""]
+        chars="0123456789abcdef"
         if self.do_print_top_tens is True:
             for i in range(0, self.bits_per_line):
                 if i%self.base_of_top_tens==0:
