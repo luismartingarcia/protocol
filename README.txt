@@ -234,6 +234,8 @@
                      position of the horizonal lines.
     sepchar=<c>    : Instructs protocol to use the supplied character instead
                      of the default "|" for the field separator character.
+    base=<n>       : Base of top numbers. By default it's 10, Use 8 for bytewise
+                     numbering and 16 for wordwise numbering.
 
     The following diagram shows the character modifiers described above.
 
