@@ -94,6 +94,7 @@ class Protocol():
         self.hdr_char_fill_even="-"            # Fill character for border even positions
         self.hdr_char_sep="|"                  # Field separator character
         self.bits_per_line=32                  # Number of bits per line
+        self.base_of_top_tens=10               # Base of top numbers
         self.do_print_top_tens=True            # True: print top numbers for bit tens
         self.do_print_top_units=True           # True: print top numbers for bit units
         self.field_list=[]                     # Header fields to be printed out
@@ -138,11 +139,15 @@ class Protocol():
             opts=opts.split(",")
             for opt in opts:
                 try:
-                    var, value = opt.split("=")
+                    var, value = opt.replace(':','=').split("=")
                     if var.lower()=="bits":
                         self.bits_per_line=int(value)
                         if self.bits_per_line<=0:
                             raise ProtocolException("FATAL: Invalid value for 'bits' option (%s)" % value)
+                    elif var.lower()=="base":
+                        self.base_of_top_tens=int(value)
+                        if self.base_of_top_tens<=0 or self.base_of_top_tens>16:
+                            raise ProtocolException("FATAL: Invalid value for 'base' option (%s)" % value)
                     elif var.lower()=="numbers":
                         if value.lower() in ["0", "n", "no", "none", "false"]:
                             self.do_print_top_tens=False
@@ -185,14 +190,14 @@ class Protocol():
         lines=["", ""]
         if self.do_print_top_tens is True:
             for i in range(0, self.bits_per_line):
-                if str(i)[-1:]=="0":
-                    lines[0]+=" %s" % str(i)[0]
+                if i%self.base_of_top_tens==0:
+                    lines[0]+=" %s" % chars[int(i/self.base_of_top_tens)%self.base_of_top_tens]
                 else:
                     lines[0]+="  "
             lines[0]+="\n"
         if self.do_print_top_units is True:
             for i in range(0, self.bits_per_line):
-                lines[1]+=" %s" % str(i)[-1:]
+                lines[1]+=" %s" % chars[i%self.base_of_top_tens]
             #lines[1]+="\n"
         result = "".join(lines)
         return  result if len(result)>0 else None
