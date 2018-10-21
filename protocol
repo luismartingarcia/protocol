@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 ################################################################################
 #                    ____            _                  _                      #
 #                   |  _ \ _ __ ___ | |_ ___   ___ ___ | |                     #
@@ -63,6 +64,8 @@ from datetime import date
 from constants import *
 import specs
 
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 # CLASS DEFINITIONS
 class ProtocolException(Exception):
@@ -72,8 +75,8 @@ class ProtocolException(Exception):
     def __init__(self, errmsg):
         self.errmsg=errmsg
 
-    def __str__(self):
-        return str(self.errmsg)
+    def __unicode__(self):
+        return self.errmsg
 
 
 class Protocol():
@@ -194,6 +197,7 @@ class Protocol():
                         else:
                             raise ProtocolException("FATAL: Invalid value for 'numbers' option (%s)" % value)
                     elif var.lower() in ["oddchar", "evenchar", "startchar", "endchar", "sepchar"]:
+                        value = value.decode("utf-8")
                         if len(value)>1 or len(value)<=0:
                             raise ProtocolException("FATAL: Invalid value for '%s' option (%s)" % (var, value))
                         else:
@@ -272,7 +276,7 @@ class Protocol():
         Processes the list of protocol fields that we got from the spec and turns
         it into something that we can print easily (useful for cases when we have
         protocol fields that span more than one line). This is just a helper
-        function to make __str__()'s life easier.
+        function to make __unicode__()'s life easier.
         """
         new_fields=[]
         bits_in_line=0
@@ -330,7 +334,7 @@ class Protocol():
 
 
     # Convert to string
-    def __str__(self):
+    def __unicode__(self):
         """
         Converts the protocol specification stored in the object to a nice
         ASCII diagram like the ones that appear in RFCs. Conversion supports
@@ -366,9 +370,9 @@ class Protocol():
 
             # If the field text is too long, we truncate it, and add a dot
             # at the end.
-            if len(field_text) > (field_len*2)-1:
+            if len(field_text.decode("utf-8")) > (field_len*2)-1:
                 field_text=field_text[0:(field_len*2)-1]
-                if len(field_text)>1:
+                if len(field_text.decode("utf-8"))>1:
                     field_text=field_text[0:-1]+"."
 
             # If we have space for the whole field in the current line, go
@@ -383,7 +387,7 @@ class Protocol():
                   current_line+=self._get_separator()
 
                 # Add the whole field
-                current_line+=str.center(field_text, (field_len*2)-1)
+                current_line+=str.center(field_text, (field_len*2)-1-len(field_text.decode("utf8"))+len(field_text))
 
                 # Update counters
                 bits_in_line+=field_len
@@ -465,14 +469,16 @@ class Protocol():
                                 start_line=" "*self.do_print_line_number+self.hdr_char_start
                                 end_line=self.hdr_char_end
                             else:
-                                start_line=str(line_number).rjust(self.do_print_line_number-1)+" "+self.hdr_char_sep
-                                line_number+=1
+                                start_line=self.hdr_char_sep
+                                if self.do_print_line_number:
+                                  start_line=str(line_number).rjust(self.do_print_line_number-1)+" "+start_line
+                                  line_number+=1
                                 end_line=self.hdr_char_sep
 
                             # This is the line where we need to print the field
                             # text.
                             if i == central_line:
-                                lines.append(start_line + str.center(field_text, (self.bits_per_line*2)-1) + end_line)
+                                lines.append(start_line + str.center(field_text, (self.bits_per_line*2)-1-len(field_text.decode("utf8"))+len(field_text)) + end_line)
                             # This is a line we need to leave blank
                             else:
                                 lines.append(start_line + (" " * ((self.bits_per_line*2)-1)) +  end_line)
@@ -490,7 +496,8 @@ class Protocol():
 
         result= "\n".join(lines)
         return result
-
+    def __str__(self):
+      return unicode(self).encode('utf-8')
 
 class Main():
     """
