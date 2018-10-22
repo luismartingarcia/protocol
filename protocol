@@ -350,7 +350,7 @@ class Protocol():
                     bits_in_line=0
                     # When we have a fragmented field, we may need to suppress
                     # the floor of the field, so the current line connects
-                    # with the one that follows. E.g:
+                    # with the one that follows. E.g.:
                     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                     # |            field16            |                               |
                     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               +
@@ -661,7 +661,7 @@ class Main():
                                     print("  %s" % spec)
                                 sys.exit(1)
                     # Finally, based on the spec, instance an actual protocol.
-                    # Note that if the spec is incorect, the Protocol() consutrctor
+                    # Note that if the spec is incorrect, the Protocol() constructor
                     # will call sys.exit() itself, so there is no need to do
                     # error checking here.
                     try:
