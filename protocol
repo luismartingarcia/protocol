@@ -401,7 +401,7 @@ class Protocol():
                     bits_in_line=0
                     # When we have a fragmented field, we may need to suppress
                     # the floor of the field, so the current line connects
-                    # with the one that follows. E.g:
+                    # with the one that follows. E.g.:
                     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                     # |            field16            |                               |
                     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               +
