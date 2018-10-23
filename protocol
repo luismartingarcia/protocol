@@ -262,15 +262,6 @@ class Protocol():
             c = "%s%s" % (self.hdr_char_fill_even, self.hdr_char_end)
             return a+b+c
 
-
-    def _get_separator(self, line_end=""):
-        """
-        @return a string containing a protocol field separator. Returned string
-        is a single character and matches whatever is stored in self.hdr_char_sep
-        """
-        return self.hdr_char_sep
-
-
     def _process_field_list(self):
         """
         Processes the list of protocol fields that we got from the spec and turns
@@ -384,7 +375,7 @@ class Protocol():
                   if self.do_print_line_number:
                     current_line+=str(line_number).rjust(self.do_print_line_number-1)+" "
                     line_number+=1
-                  current_line+=self._get_separator()
+                  current_line+=self.hdr_char_sep
 
                 # Add the whole field
                 current_line+=str.center(field_text, (field_len*2)-1-len(field_text.decode("utf8"))+len(field_text))
@@ -395,7 +386,7 @@ class Protocol():
 
                 # If this is the last character in the line, store the line
                 if bits_in_line==self.bits_per_line:
-                    current_line+=self._get_separator()
+                    current_line+=self.hdr_char_sep
                     lines.append(current_line)
                     current_line=""
                     bits_in_line=0
@@ -441,7 +432,7 @@ class Protocol():
                 # If this is not the last character of the line but we have no
                 # more fields to print, wrap up
                 elif fields_done==len(proto_fields):
-                    current_line+=self._get_separator()
+                    current_line+=self.hdr_char_sep
                     lines.append(current_line)
                     lines.append(self._get_horizontal(bits_in_line))
                 else:
