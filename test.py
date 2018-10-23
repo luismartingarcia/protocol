@@ -313,7 +313,7 @@ if __name__ == '__main__':
     print("#            |_|   |_|  \___/ \__\___/ \___\___/|_|                     #")
     print("#                                                                       #")
     print('#                 == "Protocol" Test Suite ==                           #')
-    print("#                                                                       #")                                  #
+    print("#                                                                       #")
     print("#########################################################################")
     # Run the actual tests
     unittest.main()
