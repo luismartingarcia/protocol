@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 ################################################################################
 #                    ____            _                  _                      #
 #                   |  _ \ _ __ ___ | |_ ___   ___ ___ | |                     #
@@ -56,13 +57,15 @@
 ################################################################################
 
 # STANDARD LIBRARY IMPORTS
-import sys
+import sys, re
 from datetime import date
 
 # INTERNAL IMPORTS
 from constants import *
 import specs
 
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 # CLASS DEFINITIONS
 class ProtocolException(Exception):
@@ -72,8 +75,8 @@ class ProtocolException(Exception):
     def __init__(self, errmsg):
         self.errmsg=errmsg
 
-    def __str__(self):
-        return str(self.errmsg)
+    def __unicode__(self):
+        return self.errmsg
 
 
 class Protocol():
@@ -88,16 +91,18 @@ class Protocol():
         Class constructor.
         @param spec is the textual specification that describes the protocol.
         """
-        self.hdr_char_start="+"                # Character for start of the border line
-        self.hdr_char_end="+"                  # Character for end of the border line
-        self.hdr_char_fill_odd="+"             # Fill character for border odd positions
-        self.hdr_char_fill_even="-"            # Fill character for border even positions
-        self.hdr_char_sep="|"                  # Field separator character
-        self.bits_per_line=32                  # Number of bits per line
-        self.do_print_top_tens=True            # True: print top numbers for bit tens
-        self.do_print_top_units=True           # True: print top numbers for bit units
-        self.field_list=[]                     # Header fields to be printed out
-        self.parse_spec(spec)                  # Parse the received spec and populate self.field_list
+        self.hdr_char_start             = "+"               # Character for start of the border line
+        self.hdr_char_end               = "+"               # Character for end of the border line
+        self.hdr_char_fill_odd          = "+"               # Fill character for border odd positions
+        self.hdr_char_fill_even         = "-"               # Fill character for border even positions
+        self.hdr_char_sep               = "|"               # Field separator character
+        self.bits_per_line              = 32                # Number of bits per line
+        self.base_of_top_tens           = 10                # Base of top numbers
+        self.do_print_top_tens          = True              # True: print top numbers for bit tens
+        self.do_print_top_units         = True              # True: print top numbers for bit units
+        self.do_print_line_number       = 0                 # >0: print line numbers on left side
+        self.field_list                 = []                # Header fields to be printed out
+        self.parse_spec(spec)                               # Parse the received spec and populate self.field_list
 
 
     def parse_spec(self, spec):
@@ -119,30 +124,69 @@ class Protocol():
             fields=spec
             opts=None
 
-        # Parse field spec
         items=fields.split(",")
         for item in items:
             try:
-                text, bits = item.split(":")
-                bits=int(bits)
-                if bits<=0:
-                    raise ProtocolException("FATAL: Fields must be at least one bit long (%s)" %spec)
+                parts = item.split(":")
+                if len(parts)==1:
+                  if item in specs.protocols:
+                    self.parse_spec(specs.protocols[item])
+                  else:
+                    start_with_the_same=[]
+                    for spec in specs.protocols:
+                       if spec.startswith(item):
+                         start_with_the_same.append(spec)
+                    if len(start_with_the_same)==1:
+                      self.parse_spec(specs.protocols[start_with_the_same[0]])
+                    elif len(start_with_the_same)==0:
+                      raise ProtocolException("FATAL: neither does supplied protocol '%s' exist nor does any known protocol start with that." % item)
+                    else:
+                      fail = "Ambiguous protocol specifier '%s'. Did you mean any of these?" % item
+                      for spec in start_with_the_same:
+                        fail += "\n   %s" % spec
+                      raise ProtocolException(fail)
+                else:
+                  text = parts[0]
+                  for item in range(1, len(parts)-1):
+                    text += ":" + parts[item]
+                  bits = parts[-1]
+                  bits = bits.replace("bytes", "8").replace("qwords", "64").replace("dwords", "32").replace("words", "16").replace("double", "64").replace("floats", "32")
+                  if re.match("^[0-9+-/\*~|&^<>()]+$", bits):
+                    bits=eval(bits)
+                    if bits<=0:
+                        raise ProtocolException("FATAL: Fields must be at least one bit long (%s)" % spec)
+                  else:
+                    raise ProtocolException("FATAL: invalid number of bits (%s)" % bits)
+                  self.field_list.append({"text":text, "len":bits})
             except ProtocolException:
                 raise
             except:
-                raise ProtocolException("FATAL: Invalid field_list specification (%s)" %spec)
-            self.field_list.append({"text":text, "len":bits})
+                raise ProtocolException("FATAL: Invalid field_list specification (%s)" % spec)
 
         # Parse options
         if opts is not None:
             opts=opts.split(",")
             for opt in opts:
                 try:
-                    var, value = opt.split("=")
+                    var, value = opt.replace(':','=').split("=")
                     if var.lower()=="bits":
-                        self.bits_per_line=int(value)
-                        if self.bits_per_line<=0:
+                        value = value.replace("bytes", "8").replace("qwords", "64").replace("dwords", "32").replace("words", "16").replace("double", "64").replace("floats", "32")
+                        if re.match("^[0-9+-/\*~|&^<>()]+$", value):
+                          self.bits_per_line=eval(value)
+                          if self.bits_per_line<=0:
                             raise ProtocolException("FATAL: Invalid value for 'bits' option (%s)" % value)
+                        else:
+                          raise ProtocolException("FATAL: invalid number of bits (%s)" % value)
+                    elif var.lower()=="base":
+                        self.base_of_top_tens=int(value)
+                        if self.base_of_top_tens<=0 or self.base_of_top_tens>16:
+                            raise ProtocolException("FATAL: Invalid value for 'base' option (%s)" % value)
+                    elif var.lower()=="rows":
+                        self.do_print_line_number=int(value)
+                        if self.do_print_line_number<0:
+                            raise ProtocolException("FATAL: Invalid value for 'rows' option (%s)" % value)
+                        if self.do_print_line_number > 0:
+                          self.do_print_line_number += 1
                     elif var.lower()=="numbers":
                         if value.lower() in ["0", "n", "no", "none", "false"]:
                             self.do_print_top_tens=False
@@ -153,6 +197,7 @@ class Protocol():
                         else:
                             raise ProtocolException("FATAL: Invalid value for 'numbers' option (%s)" % value)
                     elif var.lower() in ["oddchar", "evenchar", "startchar", "endchar", "sepchar"]:
+                        value = value.decode("utf-8")
                         if len(value)>1 or len(value)<=0:
                             raise ProtocolException("FATAL: Invalid value for '%s' option (%s)" % (var, value))
                         else:
@@ -183,17 +228,19 @@ class Protocol():
         character in the middle.
         """
         lines=["", ""]
+        chars="0123456789abcdef"
+        lines[0]+=" "*self.do_print_line_number
         if self.do_print_top_tens is True:
             for i in range(0, self.bits_per_line):
-                if str(i)[-1:]=="0":
-                    lines[0]+=" %s" % str(i)[0]
+                if i%self.base_of_top_tens == 0:
+                    lines[0]+=" %s" % chars[int(i/self.base_of_top_tens)%self.base_of_top_tens]
                 else:
                     lines[0]+="  "
             lines[0]+="\n"
+        lines[0]+=" "*self.do_print_line_number
         if self.do_print_top_units is True:
             for i in range(0, self.bits_per_line):
-                lines[1]+=" %s" % str(i)[-1:]
-            #lines[1]+="\n"
+                lines[1]+=" %s" % chars[i%self.base_of_top_tens]
         result = "".join(lines)
         return  result if len(result)>0 else None
 
@@ -210,26 +257,17 @@ class Protocol():
         if width<=0:
             return ""
         else:
-            a="%s" % self.hdr_char_start
-            b=(self.hdr_char_fill_even+self.hdr_char_fill_odd)*(width-1)
-            c="%s%s" % (self.hdr_char_fill_even, self.hdr_char_end)
+            a = "%s" % self.hdr_char_start
+            b = (self.hdr_char_fill_even+self.hdr_char_fill_odd)*(width-1)
+            c = "%s%s" % (self.hdr_char_fill_even, self.hdr_char_end)
             return a+b+c
-
-
-    def _get_separator(self, line_end=""):
-        """
-        @return a string containing a protocol field separator. Returned string
-        is a single character and matches whatever is stored in self.hdr_char_sep
-        """
-        return self.hdr_char_sep
-
 
     def _process_field_list(self):
         """
         Processes the list of protocol fields that we got from the spec and turns
         it into something that we can print easily (useful for cases when we have
         protocol fields that span more than one line). This is just a helper
-        function to make __str__()'s life easier.
+        function to make __unicode__()'s life easier.
         """
         new_fields=[]
         bits_in_line=0
@@ -287,7 +325,7 @@ class Protocol():
 
 
     # Convert to string
-    def __str__(self):
+    def __unicode__(self):
         """
         Converts the protocol specification stored in the object to a nice
         ASCII diagram like the ones that appear in RFCs. Conversion supports
@@ -304,13 +342,14 @@ class Protocol():
         numbers=self._get_top_numbers()
         if numbers is not None:
             lines.append(numbers)
-        lines.append(self._get_horizontal())
+        lines.append(" "*self.do_print_line_number+self._get_horizontal())
 
         # Print all protocol fields
         bits_in_line=0
         current_line=""
         fields_done=0
         p=-1
+        line_number=0
         while p < len(proto_fields)-1:
             p+=1
 
@@ -322,9 +361,9 @@ class Protocol():
 
             # If the field text is too long, we truncate it, and add a dot
             # at the end.
-            if len(field_text) > (field_len*2)-1:
+            if len(field_text.decode("utf-8")) > (field_len*2)-1:
                 field_text=field_text[0:(field_len*2)-1]
-                if len(field_text)>1:
+                if len(field_text.decode("utf-8"))>1:
                     field_text=field_text[0:-1]+"."
 
             # If we have space for the whole field in the current line, go
@@ -333,10 +372,13 @@ class Protocol():
                 # If this is the first thing we print on a line, add the
                 # starting character
                 if bits_in_line==0:
-                    current_line+=self._get_separator()
+                  if self.do_print_line_number:
+                    current_line+=str(line_number).rjust(self.do_print_line_number-1)+" "
+                    line_number+=1
+                  current_line+=self.hdr_char_sep
 
                 # Add the whole field
-                current_line+=str.center(field_text, (field_len*2)-1)
+                current_line+=str.center(field_text, (field_len*2)-1-len(field_text.decode("utf8"))+len(field_text))
 
                 # Update counters
                 bits_in_line+=field_len
@@ -344,13 +386,13 @@ class Protocol():
 
                 # If this is the last character in the line, store the line
                 if bits_in_line==self.bits_per_line:
-                    current_line+=self._get_separator()
+                    current_line+=self.hdr_char_sep
                     lines.append(current_line)
                     current_line=""
                     bits_in_line=0
                     # When we have a fragmented field, we may need to suppress
                     # the floor of the field, so the current line connects
-                    # with the one that follows. E.g:
+                    # with the one that follows. E.g.:
                     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                     # |            field16            |                               |
                     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               +
@@ -363,6 +405,7 @@ class Protocol():
                             line_left=self._get_horizontal(self.bits_per_line - field_len)
                             if len(line_left)==0:
                                 line_left=self.hdr_char_start
+                            line_left=" "*self.do_print_line_number+line_left
 
                             # Now print some empty space to cover the part that
                             # we can join with the field below.
@@ -383,13 +426,13 @@ class Protocol():
                         else:
                             lines.append(self._get_horizontal())
                     else:
-                        lines.append(self._get_horizontal())
+                        lines.append(" "*self.do_print_line_number+self._get_horizontal())
 
 
                 # If this is not the last character of the line but we have no
                 # more fields to print, wrap up
                 elif fields_done==len(proto_fields):
-                    current_line+=self._get_separator()
+                    current_line+=self.hdr_char_sep
                     lines.append(current_line)
                     lines.append(self._get_horizontal(bits_in_line))
                 else:
@@ -414,22 +457,25 @@ class Protocol():
                             # Let's figure out which character we need to use
                             # to start and end the current line
                             if i%2==1:
-                                start_line=self.hdr_char_start
+                                start_line=" "*self.do_print_line_number+self.hdr_char_start
                                 end_line=self.hdr_char_end
                             else:
                                 start_line=self.hdr_char_sep
+                                if self.do_print_line_number:
+                                  start_line=str(line_number).rjust(self.do_print_line_number-1)+" "+start_line
+                                  line_number+=1
                                 end_line=self.hdr_char_sep
 
                             # This is the line where we need to print the field
                             # text.
                             if i == central_line:
-                                lines.append(start_line + str.center(field_text, (self.bits_per_line*2)-1) + end_line)
+                                lines.append(start_line + str.center(field_text, (self.bits_per_line*2)-1-len(field_text.decode("utf8"))+len(field_text)) + end_line)
                             # This is a line we need to leave blank
                             else:
                                 lines.append(start_line + (" " * ((self.bits_per_line*2)-1)) +  end_line)
                             # If we just added the last line, add a horizontal separator
                             if i==lines_to_print-1:
-                                lines.append(self._get_horizontal())
+                                lines.append(" "*self.do_print_line_number+self._get_horizontal())
 
                 # Case 2: We are not at the beginning of the line and we need
                 # to print something that does not fit in the current line
@@ -441,7 +487,8 @@ class Protocol():
 
         result= "\n".join(lines)
         return result
-
+    def __str__(self):
+      return unicode(self).encode('utf-8')
 
 class Main():
     """
@@ -631,46 +678,12 @@ class Main():
 
                 # Protocol name or protocol spec
                 else:
-                    # If it contains ":" characters, we have a protocol spec
-                    if argv[i].count(":")>0:
-                        spec = argv[i]
-                    # Otherwise, the user meant to display an existing protocol
-                    else:
-                        # If we got an exact match, end of story
-                        if argv[i] in specs.protocols:
-                            spec = specs.protocols[argv[i]]
-                        # Otherwise, we may have received a partial match so
-                        # we need to figure out which protocol the user meant.
-                        # If the specification is ambiguous, we will error
-                        else:
-                            start_with_the_same=[]
-                            for spec in specs.protocols:
-                                if spec.startswith(argv[i]):
-                                    start_with_the_same.append(spec)
-                            # If we only have one entry, it means we got some
-                            # shortened version of the protocol name but no
-                            # ambiguity. In that case, we will use the match.
-                            if len(start_with_the_same)==1:
-                                spec=specs.protocols[start_with_the_same[0]]
-                            elif len(start_with_the_same)==0:
-                                print("ERROR: supplied protocol '%s' does not exist." % argv[i]);
-                                sys.exit(1)
-                            else:
-                                print("Ambiguous protocol specifier '%s'. Did you mean any of these?" % argv[i])
-                                for spec in start_with_the_same:
-                                    print("  %s" % spec)
-                                sys.exit(1)
-                    # Finally, based on the spec, instance an actual protocol.
-                    # Note that if the spec is incorect, the Protocol() consutrctor
-                    # will call sys.exit() itself, so there is no need to do
-                    # error checking here.
                     try:
-                        proto = Protocol(spec)
+                        proto = Protocol(argv[i])
                         self.protocols.append(proto)
                     except ProtocolException as e:
                         print("ERROR: %s" % str(e))
                         sys.exit(1)
-
         if len(self.protocols)==0:
             print("ERROR: Missing protocol")
             sys.exit(1)

@@ -228,12 +228,16 @@
     oddchar=<c>    : Same as evenchar but for characters in odd positions of the
                      horizontal lines. By default it takes the value '+'
     startchar=<c>  : Instructs protocol to use the supplied character instead
-                     of the default "+" for the first position of an horizontal
+                     of the default "+" for the first position of a horizontal
                      line.
     endchar=<c>    : Same as startchar but for the character in the last
-                     position of the horizonal lines.
+                     position of the horizontal lines.
     sepchar=<c>    : Instructs protocol to use the supplied character instead
                      of the default "|" for the field separator character.
+    base=<n>       : Base of top numbers. By default it's 10, Use 8 for bytewise
+                     numbering and 16 for wordwise numbering.
+    rows=<n>       : width for row numbering. By default it is zero, so no
+                     numbering of rows.
 
     The following diagram shows the character modifiers described above.
 
