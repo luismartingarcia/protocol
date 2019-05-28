@@ -493,6 +493,8 @@ icmpv6_nadv="Type:8,Code:8,Checksum:16,R:1,S:1,O:1,Reserved:29,Target\
 icmpv6_redirect="Type:8,Code:8,Checksum:16,Reserved:32,Target Address:128,\
 Destination Address:128,Options:64"
 
+dhcp = "Opcode:8,Hardware Type: 8,HW Addr Len:8,Hop Count:8,Transaction ID:32,Number of Seconds:16,Flags:16,Client IP Addr:32,Your IP Addr: 32,Server IP Addr:32,Gateway IP Addr:32,Client Hardware Addr:128,Server Host Name:512,Boot Filename:1024"
+
 modbus_tcp="Transaction ID:16,Protocol ID:16,Length:16,Address:8,Function Code:8,Data:64"
 
 profinet_rt="Frame ID:16,User Data:80,Cycle Counter:16,Data Status:8,Transfer Status:8"
@@ -749,6 +751,7 @@ protocols={"ethernet":ethernet,
            "icmpv6-nsol":icmpv6_nsol,
            "icmpv6-nadv":icmpv6_nadv,
            "icmpv6-redirect":icmpv6_redirect,
+           "dhcp": dhcp,
            "modbus_tcp":modbus_tcp,
            "profinet_rt":profinet_rt,
            "tsap":tsap,
