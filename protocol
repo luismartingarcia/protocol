@@ -531,8 +531,13 @@ class Main():
                 continue
 
             # If we have something else, treat it as a protocol spec
-            proto=Protocol(line)
-            self.protocols.append(proto)
+            if ';' in line:
+                name = line.split(';')[0]
+                p = line.split(';')[1]
+                specs.protocols[name]=p
+            else:
+                proto=Protocol(line)
+                self.protocols.append(proto)
             i+=1
 
         return i

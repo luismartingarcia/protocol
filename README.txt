@@ -29,6 +29,7 @@
    |    |_ 0x04.2.1 Field Lists.................................................
    |    |_ 0x04.2.2 Options.....................................................
    |_ 0x04.3 Command-line Options...............................................
+   |_ 0x04.4 Specifications File................................................
   0x05 Examples.................................................................
   0x06 Contact, Support and Bug Reporting.......................................
 
@@ -276,6 +277,24 @@
      --endchar   <char>  : Character that ends horizontal lines
      --sepchar   <char>  : Character that separates protocol fields
 
+  0x04.4 Specifications File
+
+    Specifications may also be presented in a text file: one per line and lines
+    beginning with '#' are treated as comments and ignored.
+
+    Each line in the file is processed and the diagram for each is printed,
+    respecting the order of -f option(s) relative to other protocol name or
+    specification commandline options.
+
+    Multiple invocations of -f are allowed.
+
+    Additionally, if a line contains a ';' character, the word to the left is
+    treated as a protocol name and text to the right is the corresponding
+    specification string. This allows users to build up a custom library of
+    protocol specifications, extending the list of built-in existing names.
+
+    Both forms may be intermixed in a single file.
+
 
  0x05 - EXAMPLES
 
@@ -425,6 +444,60 @@
     |                                                               |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+    $ cat myproto.txt
+    One:1,Two:2,Three:3,Four:4,Five:5,Six:6,Seven:7,more:4
+    wide:120,short:8,tiny:2
+    $ protocol ether -f myproto.txt uint32_t:32
+     0                   1                   2                   3                   4
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                      Destination Address                                      |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                         Source Address                                        |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |           EtherType           |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                                                               +
+    |                                                                                               |
+    +                                            Payload                                            +
+    |                                                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |O|Two|Three|  Four |   Five  |    Six    |    Seven    |  more |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +                                                               +
+    |                                                               |
+    +                                                               +
+    |                              wide                             |
+    +                                               +-+-+-+-+-+-+-+-+
+    |                                               |     short     |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |ti.|
+    +-+-+
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                            uint32_t                           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    bash-3.2$ cat mylib.txt
+    float;sign:1,exponent:8,significand:23
+    double;sign:1,exponent:11,significand:52?bits=64
+
+    $ protocol -f mylib.txt double
+     0                   1                   2                   3                   4                   5                   6
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |s|       exponent      |                                              significand                                              |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
  0x06 - CONTACT, SUPPORT AND BUG REPORTING
 
