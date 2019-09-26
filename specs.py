@@ -515,6 +515,18 @@ s7_item="Var Type:8,Var Length:8,Syntax ID:8,Transport Size:8,Length:16,DB Numbe
 
 s7_data="Return Code:8,Transport Size:8,Data Length:16"
 
+# 0                   1                   2                   3
+# 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#|         Identification        |Q| Opcode|  DNS Flags  | Rcode |
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#|        Totle Questions        |          Total Answers        |
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#|    Total Auth Resource Recs   |   Total Additional Res. Recs  |
+#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+dns="Identification:16,Qr:1,Opcode:4,DNS Flags:7,Rcode:4,Totle Questions:16, Total Answers:16,Total Auth Resource Recs:16,Total Additional Res. Recs:16"
+
+
 #      0                   1
 #      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
 #     *-------------------------------*
@@ -762,6 +774,7 @@ protocols={"ethernet":ethernet,
            "cotp_cr":cotp_cr,
            "cotp_dt":cotp_dt,
            "cotp_dr":cotp_dr,
+           "dns":dns,
            "example":example,
            "test":test
            }
