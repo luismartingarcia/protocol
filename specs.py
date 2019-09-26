@@ -784,6 +784,7 @@ protocols={"ethernet":ethernet,
            "cotp_dt":cotp_dt,
            "cotp_dr":cotp_dr,
            "dns":dns,
+           "gre":gre,
            "example":example,
            "test":test
            }
