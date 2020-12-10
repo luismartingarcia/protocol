@@ -483,6 +483,7 @@ class Main():
         print(" -h, --help          : Displays this help information")
         print(" -n, --no-numbers    : Do not print bit numbers on top of the header")
         print(" -V, --version       : Displays current version")
+        print(" -l, --list          : List included protocols")
         print(" --evenchar  <char>  : Character for the even positions of horizontal table borders")
         print(" --oddchar   <char>  : Character for the odd positions of horizontal table borders")
         print(" --startchar <char>  : Character that starts horizontal table borders")
@@ -622,6 +623,13 @@ class Main():
                 # Display version
                 elif argv[i]=="-V" or argv[i]=="--version":
                     print("%s v%s" % (APPLICATION_NAME, APPLICATION_VERSION))
+                    sys.exit(0)
+
+                # Display included protocols
+                elif argv[i]=="-l" or argv[i]=="--list":
+                    for spec in specs.protocols.keys():
+                        print(spec, "", end="")
+                    print()
                     sys.exit(0)
 
                 # Incorrect option supplied
