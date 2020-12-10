@@ -270,6 +270,7 @@
      -h, --help          : Displays this help information
      -n, --no-numbers    : Do not print bit numbers on top of the header
      -V, --version       : Displays current version
+     -l, --list          : List included protocols
      --evenchar  <char>  : Character for the even positions of horizontal lines
      --oddchar   <char>  : Character for the odd positions of horizontal lines
      --startchar <char>  : Character that starts horizontal lines
