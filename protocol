@@ -228,7 +228,7 @@ class Protocol():
         result = "".join(lines)
         return result if len(result) > 0 else None
 
-    def _get_horizontal(self, width=None, above_tline=None, fields=None, top=False, bottom=False):
+    def _get_horizontal(self, width=None, above_tline=None, fields=None, bottom=False):
         """
         @return the horizontal border line that separates field rows.
         @param width controls how many field bits the line should cover. By
@@ -239,6 +239,12 @@ class Protocol():
             width = self.bits_per_line
         elif width <= 0:
             return ""
+
+        # if above first text line then at the top
+        if above_tline == 1:
+            top = True
+        else:
+            top = False
 
         # first character of the line
         if self.do_unicode:
@@ -253,10 +259,19 @@ class Protocol():
 
         if self.do_unicode:
             # look at fields to determine where up or down connections are made
-            # for field in fields:
-            # if text_line field["line"]
-            print(above_tline)
-            b = self.u_hdr_char_fill * 2 * (width-1)
+            # b = self.u_hdr_char_fill * 2 * (width-1)
+            chars = []
+            for i in range(2 * (width-1)):
+                chars.append(self.u_hdr_char_fill)
+
+            for field in fields:
+                if field["start"] != 0:
+                    if field["line"] == above_tline:
+                        chars[2 * field["start"] - 1] = '┬'
+                    if field["line"] == above_tline - 1:
+                        chars[2 * field["start"] - 1] = '┴'
+            b = "".join(chars)
+
         else:
             # if ASCII, alternate +- characters between first and last
             b = (self.hdr_char_fill_even+self.hdr_char_fill_odd)*(width-1)
@@ -381,7 +396,7 @@ class Protocol():
         if numbers is not None:
             lines.append(numbers)
         tline = 1
-        lines.append(self._get_horizontal(above_tline=tline, fields=proto_fields, top=True))
+        lines.append(self._get_horizontal(above_tline=tline, fields=proto_fields))
 
         # Print all protocol fields
         bits_in_line = 0
@@ -441,6 +456,7 @@ class Protocol():
                             line_left = self._get_horizontal(
                                 self.bits_per_line - field_len,
                                 above_tline=tline,
+                                fields=proto_fields,
                                 bottom=True
                             )
                             if len(line_left) == 0:
@@ -463,17 +479,18 @@ class Protocol():
                                 )
                                 line_right = self._get_horizontal(
                                     self.bits_per_line-proto_fields[p+1]['len'],
-                                    above_tline=tline
+                                    above_tline=tline,
+                                    fields=proto_fields
                                 )
 
                             lines.append(line_left+line_center+line_right)
                         else:
                             lines.append(
-                                self._get_horizontal(above_tline=tline)
+                                self._get_horizontal(above_tline=tline, fields=proto_fields)
                             )
                     else:
                         lines.append(
-                            self._get_horizontal(above_tline=tline)
+                            self._get_horizontal(above_tline=tline, fields=proto_fields)
                         )
 
                 # If this is not the last character of the line but we have no
@@ -482,11 +499,14 @@ class Protocol():
                     current_line += self._get_separator()
                     lines.append(current_line)
                     lines.append(
-                        self._get_horizontal(bits_in_line, above_tline=tline)
+                        self._get_horizontal(bits_in_line, above_tline=tline, fields=proto_fields)
                     )
                 else:
                     # Add the separator character
-                    current_line += self.hdr_char_sep
+                    if self.do_unicode:
+                        current_line += self.u_hdr_char_sep
+                    else:
+                        current_line += self.hdr_char_sep
 
             # We don't have enough space for the field on this line.
             else:
@@ -509,8 +529,12 @@ class Protocol():
                                 start_line = self.hdr_char_start
                                 end_line = self.hdr_char_end
                             else:
-                                start_line = self.hdr_char_sep
-                                end_line = self.hdr_char_sep
+                                if self.do_unicode:
+                                    start_line = self.u_hdr_char_sep
+                                    end_line = self.u_hdr_char_sep
+                                else:
+                                    start_line = self.hdr_char_sep
+                                    end_line = self.hdr_char_sep
 
                             # This is the line where we need to print the field
                             # text.
@@ -522,7 +546,7 @@ class Protocol():
                             # If we just added the last line, add a horizontal separator
                             if i == lines_to_print-1:
                                 lines.append(
-                                    self._get_horizontal(above_tline=tline, bottom=True)
+                                    self._get_horizontal(above_tline=tline, fields=proto_fields, bottom=True)
                                 )
 
                 # Case 2: We are not at the beginning of the line and we need
